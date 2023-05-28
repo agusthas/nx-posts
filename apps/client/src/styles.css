@@ -1,2 +1,5 @@
 /* this is the file that contains the styles for the app */
 /* it is imported in `index.html` */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
