@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Editor } from '@tinymce/tinymce-react';
 import axios from 'axios';
 import { Controller, useForm } from 'react-hook-form';
+import { useLocation } from 'wouter';
 import { z } from 'zod';
 
 const formSchema = z.object({
@@ -16,15 +17,14 @@ export default function CreatePost() {
   const { register, handleSubmit, control, formState } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
   });
-  const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
   const mutation = useMutation({
     mutationFn: async (data: FormValues) => {
       const { data: post } = await axios.post('/api/posts', data);
       return post;
     },
     onSuccess: () => {
-      alert('Post created!');
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      navigate('/');
     },
   });
 
