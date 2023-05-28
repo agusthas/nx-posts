@@ -1,10 +1,16 @@
+import { Route, Switch } from 'wouter';
+import Home from './pages/Home';
+import NewPost from './pages/NewPost';
+
 export default function App() {
   return (
-    <div>
-      <h1 className="text-3xl text-red-500 font-bold text-center">
-        <span> Hello there, </span>
-        Welcome client 👋
-      </h1>
-    </div>
+    <Switch>
+      <Route path="/" component={Home} />
+      <Route path="/new" component={NewPost} />
+
+      <Route>
+        <h1>404 - Not Found</h1>
+      </Route>
+    </Switch>
   );
 }
