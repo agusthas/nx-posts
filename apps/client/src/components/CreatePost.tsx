@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Editor } from '@tinymce/tinymce-react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import axios from 'axios';
 
 const formSchema = z.object({
   title: z.string().min(5, 'Title is too short'),
@@ -62,15 +63,28 @@ export default function CreatePost() {
                 plugins: 'anchor autolink link lists table image',
                 toolbar:
                   'undo redo | blocks | bold italic underline strikethrough | link | numlist bullist indent outdent | image removeformat',
-                images_upload_url: 'http://localhost:3000/api/upload',
                 images_upload_handler: async (blobInfo, progress) => {
-                  await new Promise((resolve) => setTimeout(resolve, 2000));
-                  progress(50);
-                  await new Promise((resolve) => setTimeout(resolve, 2000));
-                  progress(100);
+                  const formData = new FormData();
+                  formData.append(
+                    'image',
+                    blobInfo.blob(),
+                    blobInfo.filename()
+                  );
 
-                  return 'http://moxiecode.cachefly.net/tinymce/v9/images/logo.png';
+                  progress(0);
+                  try {
+                    const { data } = await axios.post(
+                      'http://localhost:3000/api/uploads',
+                      formData
+                    );
+
+                    progress(100);
+                    return data;
+                  } catch (error) {
+                    throw new Error('Error uploading image');
+                  }
                 },
+                images_file_types: 'jpg,jpeg,png,gif,webp',
                 content_css: 'writer',
               }}
             />
