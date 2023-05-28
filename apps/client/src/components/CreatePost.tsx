@@ -1,8 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Editor } from '@tinymce/tinymce-react';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { z } from 'zod';
 import axios from 'axios';
+import { Controller, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 const formSchema = z.object({
   title: z.string().min(5, 'Title is too short'),
@@ -15,13 +16,23 @@ export default function CreatePost() {
   const { register, handleSubmit, control, formState } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
   });
-
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
-    console.log(data);
-  };
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async (data: FormValues) => {
+      const { data: post } = await axios.post('/api/posts', data);
+      return post;
+    },
+    onSuccess: () => {
+      alert('Post created!');
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+    <form
+      className="space-y-6"
+      onSubmit={handleSubmit((data) => mutation.mutate(data))}
+    >
       <div>
         <label
           htmlFor="title"
